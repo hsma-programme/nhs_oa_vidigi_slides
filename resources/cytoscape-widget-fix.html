@@ -1,0 +1,34 @@
+<script>
+(function () {
+  // ipycytoscape widgets (e.g. from vidigi's dfg_to_cytoscape) lay out their
+  // graph client-side, sized to their container. reveal.js sets
+  // display:none on every slide except the current one, so a widget on a
+  // slide that isn't visible when it first mounts gets a 0x0 container and
+  // never recovers. Repair it on every slide change by resizing/fitting any
+  // cytoscape instance on the now-visible slide.
+  function fixVisibleCytoscapeWidgets() {
+    document
+      .querySelectorAll(".reveal .slides section.present .custom-widget")
+      .forEach(function (el) {
+        var cy = el._cyreg && el._cyreg.cy;
+        if (cy) {
+          cy.resize();
+          cy.fit(undefined, 30);
+        }
+      });
+  }
+
+  function whenRevealReady(callback) {
+    if (window.Reveal && typeof window.Reveal.on === "function") {
+      callback(window.Reveal);
+    } else {
+      setTimeout(function () { whenRevealReady(callback); }, 50);
+    }
+  }
+
+  whenRevealReady(function (Reveal) {
+    Reveal.on("ready", fixVisibleCytoscapeWidgets);
+    Reveal.on("slidechanged", fixVisibleCytoscapeWidgets);
+  });
+})();
+</script>

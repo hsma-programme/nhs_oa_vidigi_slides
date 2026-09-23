@@ -1,0 +1,328 @@
+/*-- scss:defaults --*/
+
+$body-bg: #303030;
+$body-color: #fff;
+$link-color: #42affa;
+
+/*-- scss:rules --*/
+
+.reveal .backgrounds {
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+}
+
+.reveal .slide blockquote {
+  border-left: 3px solid $text-muted;
+  padding-left: 0.5em;
+}
+
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  margin: 0px 20px 20px 20px;
+  color: #ffffff;
+  line-height: 0.9em;
+  letter-spacing: 0.02em;
+  text-shadow: none;
+}
+
+.reveal h1 {
+  margin: 0px 20px 20px 20px;
+  color: #ffffff;
+  line-height: 0.9em;
+  letter-spacing: 0.02em;
+  text-shadow: -1px -1px 4px black;
+}
+
+.reveal h2 {
+  font-size:1.3em;
+}
+
+.reveal p {
+  font-size:0.85em;
+}
+
+.value-box p {
+  font-size:1.4em;
+}
+
+p {
+    margin: 0px 20px 20px 20px !important;
+}
+
+body {
+    font-size: 20px;
+}
+
+.reveal .progress {
+  background: rgba(0, 0, 0, 0.2);
+  color: #8f0000; /* This sets the progress bar to dark red */
+}
+
+.reveal div.slide-menu-button a i.fas.fa-bars {
+    filter: brightness(10) saturate(0);
+}
+
+.reveal .slide-chalkboard-buttons i.fas {
+    filter: brightness(10) saturate(0);
+}
+
+// Create a grey box using a pseudo-element (doesn't interfere with bg)
+.reveal .slides {
+  padding: 0 !important;
+  border-radius: 12px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  transform: scaleX(1.1);
+  transform-origin: center;
+
+  /* Remove the background from here */
+  background-color: transparent;
+}
+
+// Default: content starts at the top for regular slides
+.reveal .slides > section {
+  background-color: rgba(56, 56, 56, 0.8);
+  border-radius: 12px;
+  padding: 20px;
+  box-sizing: border-box;
+  /* min-height: 85vh; */
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+// Title slide — target by id
+.reveal .slides > section#title-slide {
+  background-color: rgba(56, 56, 56, 0.8);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+// Restore alignment for title slide children
+.reveal .slides > section#title-slide h1,
+.reveal .slides > section#title-slide .quarto-title-authors,
+.reveal .slides > section#title-slide .quarto-title-author,
+.reveal .slides > section#title-slide .quarto-title-author-name,
+.reveal .slides > section#title-slide p {
+  text-align: center;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+// Grey box only on the stack wrapper (content slides)
+.reveal .slides > section.stack {
+  background-color: rgba(56, 56, 56, 0.8);
+  border-radius: 12px;
+}
+
+// Limit the width of the elements within the slides so they don't come too close to
+// the edge of the grey background box (or overhang)
+// .sourceCode {
+//   width: 95% !important;
+//   max-width: 95% !important;
+// }
+
+// .cell-output {
+//   width: 95% !important;
+//   max-width: 95% !important;
+// }
+
+.reveal .slides > section.stack > section.slide {
+  box-sizing: border-box;
+  /*  width: 100% !important; */
+  padding-right: 60px !important;
+}
+
+
+
+iframe.stlite {
+    width: 1px;
+    min-width: 95% !important;
+}
+
+.value-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  row-gap: 1.5rem;
+}
+
+/* Collapse to a single column on small screens */
+@media (max-width: 600px) {
+  .value-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Slides with no grey box
+.reveal .slides > section:has(> section.no-box) {
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.reveal .slides > section:has(> section.no-box) > section:not(.no-box) {
+  background-color: rgba(56, 56, 56, 0.8) !important;
+  border-radius: 12px !important;
+  box-sizing: border-box !important;
+  padding: 20px !important;
+  padding-right: 60px !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+}
+
+// # header slide should be centred vertically
+.reveal .slides > section:has(> section.no-box) > section:first-child {
+  justify-content: center !important;
+}
+
+/* Ensure column containers stretch to full width inside flex-slides */
+.reveal .slides section:has(> section.no-box) section > .columns {
+  width: 100% !important;
+  flex-grow: 1; /* Allows the columns to fill vertical space if needed */
+}
+
+// Same fix for ordinary grey-box slides. The flex-column slide layout above
+// uses `align-items: flex-start`, so a `.columns` block is never stretched to
+// the slide width -- it shrink-wraps to its own text. Each `.columns` row then
+// gets a width set by its longest cell, and its 50/50 split point moves with
+// it: a row of short cells (e.g. "Total frames: 1440") renders narrower than a
+// row of long ones ("Animation file size: 7813.1 kb (7.8 mb)"), so the second
+// column drifts left out of alignment between rows. Forcing full width gives
+// every row one shared split point.
+.reveal .slides > section > .columns,
+.reveal .slides > section > section > .columns {
+  width: 100%;
+}
+
+.bg-amber { background-color:rgb(211, 123, 0) ; }
+
+.bg-light-grey { background-color:rgb(197, 197, 197) ; }
+
+.bg-light-blue { background-color:rgb(106, 189, 192) ; }
+
+.centred-grid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  gap: 1rem;
+  width: 100%;
+
+  .fragment {
+    width: 60%;
+  }
+}
+
+.reveal {
+  --codewindow-bg: #1e293b;
+  --codewindow-header-bg: #0f172a;
+  --codewindow-tab-bg: #334155;
+  --codewindow-color: #e2e8f0;
+}
+// codewindow builds its window chrome (traffic lights + file tab) as a bare
+// `div.header`, but the reveal-header extension unconditionally hides every
+// `div.header` on the page at init -- see
+// _extensions/shafayetShafee/reveal-header/resources/js/add_header.js, where it
+// suppresses the `::: {.header}` slide-body divs used to override per-slide
+// header text. It runs after codewindow, so it stamps an inline display:none on
+// the code window's title bar and the whole bar vanishes.
+// A scoped !important beats the inline style. Keep it scoped to
+// `.codewindow > .header` so genuine reveal-header override divs stay hidden.
+.reveal .codewindow > .header {
+  display: flex !important;
+}
+
+// codewindow sets `.codewindow { font-size: 0.45em }` and then forces the inner
+// pre / .sourceCode to `font-size: unset` so they inherit it, which lands code
+// at 0.45 * 40px root = 18px. Quarto's own revealjs default is
+// `.reveal pre { font-size: .55em }` = 22px, hence code windows reading ~18%
+// small. 0.55em matches Quarto exactly; drop to 0.5em (20px) for a gentler bump.
+// This scales the whole window, file tab and language icon included -- if the
+// 30px title bar feels cramped, raise --codewindow-header-height alongside it.
+.reveal .codewindow {
+  font-size: 0.50em;
+  margin-bottom: 12px;
+}
+
+// The file tab just inherits the window's font-size, so the filename renders at
+// the same size as the code. Scale it down relative to the window: 0.8em here
+// is 0.8 * 0.5 = 0.4em of the root, i.e. 16px against the code's 20px.
+// Covers the multi-tab layout (.header .tabs .file) as well as the single tab.
+// The language icon is sized `height: 1em`, so it shrinks in step and the tab
+// stays proportioned -- give the svg its own font-size if you want it to hold
+// its current size.
+.reveal .codewindow > .header .file {
+  font-size: 0.8em;
+}
+
+// .codewindow-dark doesn't redefine --codewindow-tab-active-bg, so the active
+// file tab falls back to the light value set on .reveal above while
+// --codewindow-color flips to near-white -- roughly 1.06:1 contrast, i.e. an
+// invisible file name. Give the dark preset a matching tab colour.
+.reveal .codewindow.codewindow-dark {
+  --codewindow-tab-active-bg: #1e293b;
+}
+
+// Stop code blocks growing a spurious horizontal scrollbar.
+// code-line-style turns each line into `display:inline-block; width:100%` with
+// `padding-left:.35em` and a 3px left border. This deck has no universal
+// `box-sizing:border-box`, so those add ON TOP of the 100% and every line ends
+// up ~3px wider than its container -- and both `div.sourceCode` and
+// `.reveal pre code` are `overflow:auto`, so that's enough to trigger a
+// scrollbar even on a two-line block. border-box folds the padding and border
+// back inside the 100%, so the line ends flush and nothing overflows.
+// (Quarto's `pre.numberSource code > span { left: -4em }` is a paint-time
+// relative offset and never contributed to scroll overflow -- only width did.)
+.reveal div.sourceCode pre > code > span {
+  box-sizing: border-box;
+}
+
+// live-runtime.css (from the live-revealjs extension, used elsewhere in this
+// deck for webR live-coding) sets `div.cell-output-display canvas
+// { background-color: #fff }` so webR's base-R plots read on the dark theme.
+// vidigi's dfg_to_cytoscape() output is also a canvas inside a
+// div.cell-output-display, but ipycytoscape stacks THREE canvas layers
+// (selection-box, drag, node/edge content) and relies on the top two staying
+// transparent so the node/edge layer underneath shows through. The blanket
+// white background opacifies all three, so the always-empty top layer
+// permanently hides the graph. This selector is more specific
+// (div.cell-output-display .custom-widget canvas vs.
+// div.cell-output-display canvas), so it wins regardless of load order.
+.reveal div.cell-output-display .custom-widget canvas {
+  background-color: transparent;
+}
+
+// Same blanket `div.cell-output-display canvas { background-color: #fff }`
+// rule, same failure shape, different widget: Plotly Express auto-switches
+// `px.line`/`px.scatter` to WebGL (`scattergl`) once a trace has enough
+// points (e.g. TrialLogger.plot_queue_size on a multi-run, fine-grained
+// snapshot grid easily crosses that threshold). A WebGL subplot stacks
+// THREE canvases per axis - `gl-canvas-context` (the actual rendered
+// points/lines), then `gl-canvas-focus` and `gl-canvas-pick` on top, both
+// normally left empty/transparent (focus repaints hover highlights,
+// pick is an offscreen hit-testing buffer never meant to be seen). The
+// blanket white background opacifies all three, so the two empty top
+// layers permanently hide the traces drawn on the layer underneath -
+// legend, axis titles and hover still work (SVG, and JS hit-testing reads
+// the canvas's pixel buffer directly, not its CSS), only the traces vanish.
+// Higher specificity than div.cell-output-display canvas, same as the
+// .custom-widget rule above, so it wins regardless of load order.
+.reveal div.cell-output-display .plotly-graph-div canvas {
+  background-color: transparent;
+}

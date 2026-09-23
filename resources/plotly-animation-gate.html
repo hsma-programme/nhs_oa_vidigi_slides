@@ -1,0 +1,56 @@
+<script>
+(function () {
+  // vidigi/Plotly animations are embedded with auto_play=False, so they sit
+  // paused on frame 0 until something calls Plotly.animate(). Reveal.js
+  // renders the whole deck as one page and doesn't defer scripts for
+  // off-screen slides, so without this, every animation on the deck would
+  // otherwise need to be started/stopped manually. Instead, play the
+  // animation(s) on the slide that just became current, and pause the
+  // animation(s) on the slide just left - reusing the exact Play/Pause
+  // button args vidigi already bakes into each figure's layout.updatemenus,
+  // so this keeps working even if vidigi's frame_duration/transition
+  // settings change.
+  function findButtonArgs(gd, label) {
+    var menus = gd.layout && gd.layout.updatemenus;
+    if (!menus) return null;
+    for (var m = 0; m < menus.length; m++) {
+      var buttons = menus[m].buttons || [];
+      for (var b = 0; b < buttons.length; b++) {
+        if (buttons[b].label === label) return buttons[b].args;
+      }
+    }
+    return null;
+  }
+
+  function setAnimationState(section, label) {
+    if (!section) return;
+    var divs = section.querySelectorAll(".plotly-graph-div");
+    divs.forEach(function (gd) {
+      var args = findButtonArgs(gd, label);
+      if (args && window.Plotly) {
+        Plotly.animate(gd, args[0], args[1]);
+      }
+    });
+  }
+
+  function onSlideChanged(event) {
+    setAnimationState(event.previousSlide, "⏸ Pause");
+    setAnimationState(event.currentSlide, "▶ Play");
+  }
+
+  function whenRevealReady(callback) {
+    if (window.Reveal && typeof window.Reveal.on === "function") {
+      callback(window.Reveal);
+    } else {
+      setTimeout(function () { whenRevealReady(callback); }, 50);
+    }
+  }
+
+  whenRevealReady(function (Reveal) {
+    Reveal.on("ready", function (event) {
+      setAnimationState(event.currentSlide, "▶ Play");
+    });
+    Reveal.on("slidechanged", onSlideChanged);
+  });
+})();
+</script>

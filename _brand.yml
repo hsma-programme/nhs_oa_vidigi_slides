@@ -1,0 +1,15 @@
+typography:
+  fonts:
+    - family: Lexend
+      source: google
+  base: Lexend
+  headings: Lexend
+
+# defaults:
+#   bootstrap:
+#     defaults: # defaults also supports a string as its value
+#       slide-menu-button: "#fff"
+
+
+color:
+  primary: "#8f0000"
