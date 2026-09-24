@@ -7,9 +7,16 @@ from sim_tools.distributions import Exponential, Lognormal
 import pandas as pd
 from vidigi.logging import EventLogger, TrialLogger
 from vidigi.utils import create_event_position_df, EventPosition
-from vidigi.prep import reshape_for_animations, generate_animation_df  # NEW
-from vidigi.animation import generate_animation  # NEW
 from vidigi.resources import VidigiStore
+
+# NEW imports
+from vidigi.process_mapping import (
+    add_sim_timestamp,
+    discover_dfg,
+    dfg_to_graphviz,
+    dfg_to_cytoscape,
+)
+from IPython.display import display
 
 
 class Patient:
@@ -42,10 +49,7 @@ class Model:
         self.replication_id = replication_id
         self.env = simpy.Environment()
         self.patient_counter = 0
-        self.logger = EventLogger(
-            env=self.env,
-            run_number=self.replication_id,
-        )
+        self.logger = EventLogger(env=self.env, run_number=self.replication_id)
         self.nurse = VidigiStore(
             self.env,
             num_resources=self.param.num_nurses,
@@ -152,48 +156,84 @@ if __name__ == "__main__":
     print(f"90th Perc : {my_trial.trial_perc_90_q_time_nurse:.2f} minutes")
     print()
 
-    print(my_trial.trial_logger.get_log_by_run(run=1, as_df=True).head(10))
+    # We've commented out the animation code as we don't need it for now
+    # layout = create_event_position_df(
+    #     [
+    #         EventPosition(event="arrival", x=0, y=350, label="Entrance"),
+    #         EventPosition(
+    #             event="nurse_wait_begins", x=200, y=250, label="Waiting for Nurse"
+    #         ),
+    #         EventPosition(
+    #             event="being_seen_by_nurse",
+    #             x=200,
+    #             y=150,
+    #             label="Being Seen By Nurse",
+    #             resource="num_nurses",
+    #         ),
+    #         EventPosition(event="depart", x=200, y=50, label="Exit"),
+    #     ]
+    # )
 
-    layout = create_event_position_df(
-        [
-            EventPosition(event="arrival", x=0, y=350, label="Entrance"),
-            EventPosition(
-                event="nurse_wait_begins", x=200, y=250, label="Waiting for Nurse"
-            ),
-            EventPosition(
-                event="being_seen_by_nurse",
-                x=200,
-                y=150,
-                label="Being Seen By Nurse",
-                resource="num_nurses",
-            ),
-            EventPosition(event="depart", x=200, y=50, label="Exit"),
-        ]
-    )
+    # fig = my_trial.trial_logger.animate_activity_log(
+    #     run_number=1,
+    #     event_position_df=layout,
+    #     every_x_time_units=1,
+    #     scenario=my_params,
+    # )
+    # fig.show()
 
     # NEW
-    # Rather than calling animate_activity_log() in one go, we now run
-    # the three steps that it is made up of, one at a time
+    # Example 1 - step by step
 
-    # Step 1: build the minute-by-minute snapshots of where everyone is
-    reshaped_df = reshape_for_animations(
-        event_log=my_trial.trial_logger,
-        run_number=1,
-        every_x_time_units=1,
-        limit_duration=my_params.sim_duration,
+    my_event_log_timestamp = add_sim_timestamp(
+        my_trial.trial_logger.get_log_by_run(run=1, as_df=True),
+        time_unit="minutes",
+        sim_start="09:00:00",
     )
 
-    # Step 2: assign each entity an icon and a position for every snapshot
-    animation_df = generate_animation_df(
-        full_entity_df=reshaped_df,
-        event_position_df=layout,
+    # If we print this, we can see our new timestamp column
+    print(my_event_log_timestamp.head(10))
+
+    # Now we'll discover the pathways in the model
+    nodes, edges = discover_dfg(
+        my_event_log_timestamp,
+        # Our 'case_col' will be 'entity_id' if we've used EventLogger
+        # This just means that each person is considered to be a separate
+        # journey
+        case_col="entity_id",
     )
 
-    # Step 3: turn it into an animation
-    fig = generate_animation(
-        full_entity_df_plus_pos=animation_df,
-        event_position_df=layout,
-        scenario=my_params,
+    # NOTE: display() only draws these graphs in an interactive environment
+    # (e.g. a Jupyter notebook or VSCode's interactive window). If you run this
+    # as a plain script from the terminal, you'll just see text.
+
+    # A static representation of flow through the process
+    graphviz_graph = dfg_to_graphviz(nodes, edges, min_frequency=5)
+    display(graphviz_graph)
+
+    # An interactive version
+    cytoscape_widget = dfg_to_cytoscape(
+        nodes,
+        edges,
+        min_frequency=5,
+        layout_name="dagre",
+        layout_orientation="LR",
+        spacing_factor=2,
+        width=1400,
+    )
+    display(cytoscape_widget)
+
+    # NEW
+    # Repeat the same thing with the simplified call from the trial logger object
+
+    display(
+        my_trial.trial_logger.generate_dfg(
+            run_number=1, input_time_format="minutes", output_format="graphviz-object"
+        )
     )
 
-    fig.show()
+    display(
+        my_trial.trial_logger.generate_dfg(
+            run_number=1, input_time_format="minutes", output_format="cytoscape-jupyter"
+        )
+    )
