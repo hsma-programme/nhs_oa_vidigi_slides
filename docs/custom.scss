@@ -260,6 +260,11 @@ iframe.stlite {
   margin-bottom: 12px;
 }
 
+// Let selected code windows grow beyond Quarto's default code height limit.
+.reveal .codewindow.full-height-code pre code {
+  max-height: none;
+}
+
 // The file tab just inherits the window's font-size, so the filename renders at
 // the same size as the code. Scale it down relative to the window: 0.8em here
 // is 0.8 * 0.5 = 0.4em of the root, i.e. 16px against the code's 20px.
